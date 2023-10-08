@@ -437,9 +437,11 @@ swm_df =
     runtime = runtime_vec)
 ```
 
-## Using an API
+## Get fomr Water Data
 
-import this as a CSV and parse it
+This is from an API
+
+Import this as a CSV and parse it
 
 ``` r
 nyc_water = 
@@ -454,3 +456,14 @@ nyc_water =
     ## 
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+# parse from table in html to tibble 
+
+nyc_water=
+  GET("https://data.cityofnewyork.us/resource/ia2d-e54m.json") %>% 
+  content("text") %>% 
+  jsonlite::fromJSON() %>% 
+  as_tibble()
+# can request API as a json file type 
+```

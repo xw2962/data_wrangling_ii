@@ -86,13 +86,22 @@ swm_df =
     runtime = runtime_vec)
 ```
 
-## Using an API
+## Get fomr Water Data 
+This is from an API
 
-import this as a CSV and parse it
+Import this as a CSV and parse it
 ```{r}
 nyc_water = 
   GET("https://data.cityofnewyork.us/resource/ia2d-e54m.csv") %>% 
   content("parsed")
+# parse from table in html to tibble 
+
+nyc_water=
+  GET("https://data.cityofnewyork.us/resource/ia2d-e54m.json") %>% 
+  content("text") %>% 
+  jsonlite::fromJSON() %>% 
+  as_tibble()
+# can request API as a json file type 
 ```
 
 ```{r}
