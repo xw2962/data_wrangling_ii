@@ -1,0 +1,98 @@
+---
+title: "reading_data_from_the_web"
+author: "Xiaoyu Wu"
+date: "2023-10-08"
+output: github_document
+---
+
+```{r}
+library(tidyverse)
+library(rvest)
+library(httr)
+```
+## Scrape a table 
+I want the first table from this page
+
+read in the html 
+```{r}
+url = "http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm"
+drug_use_html = read_html(url)
+# function from rvest
+drug_use_html
+```
+extract the table(s)
+```{r}
+drug_use_html %>%
+# html_nodes(css="table")
+  html_table()
+```
+get the contents from the first list element
+```{r}
+table_marj = 
+  drug_use_html %>% 
+  html_table() %>% 
+  first()
+```
+remove the first row
+```{r}
+table_marj = 
+  drug_use_html %>% 
+  html_table() %>% 
+  first() %>%
+  slice(-1) 
+
+table_marj
+```
+
+learning assessment 
+
+Create a data frame that contains the cost of living table for New York
+```{r}
+nyc_cost = 
+  read_html("https://www.bestplaces.net/cost_of_living/city/new_york/new_york") %>%
+  html_table(header = TRUE) %>%
+  first()
+```
+
+## CSS Selectors
+
+
+```{r}
+swm_html = 
+  read_html("https://www.imdb.com/list/ls070150896/")
+
+title_vec = 
+  swm_html %>%
+  html_elements(".lister-item-header a") %>%
+  html_text()
+
+gross_rev_vec = 
+  swm_html %>%
+  html_elements(".text-small:nth-child(7) span:nth-child(5)") %>%
+  html_text()
+
+runtime_vec = 
+  swm_html %>%
+  html_elements(".runtime") %>%
+  html_text()
+
+swm_df = 
+  tibble(
+    title = title_vec,
+    rev = gross_rev_vec,
+    runtime = runtime_vec)
+```
+
+## Using an API
+
+import this as a CSV and parse it
+```{r}
+nyc_water = 
+  GET("https://data.cityofnewyork.us/resource/ia2d-e54m.csv") %>% 
+  content("parsed")
+```
+
+```{r}
+
+```
+
