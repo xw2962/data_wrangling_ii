@@ -402,12 +402,19 @@ nyc_cost =
   first()
 ```
 
-## CSS Selectors
+## CSS Selectors Star Wars Movie Info
+
+I want the data from
+[here](%22https://www.imdb.com/list/ls070150896/%22)
 
 ``` r
-swm_html = 
-  read_html("https://www.imdb.com/list/ls070150896/")
+url= "https://www.imdb.com/list/ls070150896/"
+swm_html = read_html(url)
+```
 
+Grab elements that I want
+
+``` r
 title_vec = 
   swm_html %>%
   html_elements(".lister-item-header a") %>%
@@ -426,7 +433,7 @@ runtime_vec =
 swm_df = 
   tibble(
     title = title_vec,
-    rev = gross_rev_vec,
+    gross_rev = gross_rev_vec,
     runtime = runtime_vec)
 ```
 
