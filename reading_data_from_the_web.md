@@ -467,3 +467,48 @@ nyc_water=
   as_tibble()
 # can request API as a json file type 
 ```
+
+## BRFSS
+
+same process, different data
+
+``` r
+brfss_2010=
+  GET("https://data.cdc.gov/resource/acme-vg9e.csv",
+      query=list("$limit"=5000)) %>% 
+  content("parsed")
+```
+
+    ## Rows: 5000 Columns: 23
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (16): locationabbr, locationdesc, class, topic, question, response, data...
+    ## dbl  (6): year, sample_size, data_value, confidence_limit_low, confidence_li...
+    ## lgl  (1): locationid
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+brfss_2010
+```
+
+    ## # A tibble: 5,000 × 23
+    ##     year locationabbr locationdesc     class topic question response sample_size
+    ##    <dbl> <chr>        <chr>            <chr> <chr> <chr>    <chr>          <dbl>
+    ##  1  2010 AL           AL - Jefferson … Heal… Over… How is … Excelle…          94
+    ##  2  2010 AL           AL - Tuscaloosa… Heal… Over… How is … Excelle…          58
+    ##  3  2010 AL           AL - Mobile Cou… Heal… Over… How is … Excelle…          91
+    ##  4  2010 AL           AL - Tuscaloosa… Heal… Over… How is … Very go…         109
+    ##  5  2010 AL           AL - Mobile Cou… Heal… Over… How is … Very go…         177
+    ##  6  2010 AL           AL - Jefferson … Heal… Over… How is … Very go…         148
+    ##  7  2010 AL           AL - Jefferson … Heal… Over… How is … Good             208
+    ##  8  2010 AL           AL - Tuscaloosa… Heal… Over… How is … Good             171
+    ##  9  2010 AL           AL - Mobile Cou… Heal… Over… How is … Good             224
+    ## 10  2010 AL           AL - Tuscaloosa… Heal… Over… How is … Fair              62
+    ## # ℹ 4,990 more rows
+    ## # ℹ 15 more variables: data_value <dbl>, confidence_limit_low <dbl>,
+    ## #   confidence_limit_high <dbl>, display_order <dbl>, data_value_unit <chr>,
+    ## #   data_value_type <chr>, data_value_footnote_symbol <chr>,
+    ## #   data_value_footnote <chr>, datasource <chr>, classid <chr>, topicid <chr>,
+    ## #   locationid <lgl>, questionid <chr>, respid <chr>, geolocation <chr>

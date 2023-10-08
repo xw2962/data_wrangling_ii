@@ -103,8 +103,13 @@ nyc_water=
   as_tibble()
 # can request API as a json file type 
 ```
-
+## BRFSS 
+same process, different data 
 ```{r}
-
+brfss_2010=
+  GET("https://data.cdc.gov/resource/acme-vg9e.csv",
+      query=list("$limit"=5000)) %>% 
+  content("parsed")
+brfss_2010
 ```
 
