@@ -113,3 +113,19 @@ brfss_2010=
 brfss_2010
 ```
 
+## Some Data aren't so Nice
+
+Let's look at Pokemon Data 
+```{r}
+pokemon_data=
+  GET("https://pokeapi.co/api/v2/pokemon/1") %>%
+  content
+
+pokemon_data$name
+pokemon_data$height
+pokemon_data$abilities
+```
+
+## Closing Thoughts 
+
+Be reasonable.  

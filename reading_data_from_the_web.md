@@ -512,3 +512,62 @@ brfss_2010
     ## #   data_value_type <chr>, data_value_footnote_symbol <chr>,
     ## #   data_value_footnote <chr>, datasource <chr>, classid <chr>, topicid <chr>,
     ## #   locationid <lgl>, questionid <chr>, respid <chr>, geolocation <chr>
+
+## Some Data aren’t so Nice
+
+Let’s look at Pokemon Data
+
+``` r
+pokemon_data=
+  GET("https://pokeapi.co/api/v2/pokemon/1") %>%
+  content
+
+pokemon_data$name
+```
+
+    ## [1] "bulbasaur"
+
+``` r
+pokemon_data$height
+```
+
+    ## [1] 7
+
+``` r
+pokemon_data$abilities
+```
+
+    ## [[1]]
+    ## [[1]]$ability
+    ## [[1]]$ability$name
+    ## [1] "overgrow"
+    ## 
+    ## [[1]]$ability$url
+    ## [1] "https://pokeapi.co/api/v2/ability/65/"
+    ## 
+    ## 
+    ## [[1]]$is_hidden
+    ## [1] FALSE
+    ## 
+    ## [[1]]$slot
+    ## [1] 1
+    ## 
+    ## 
+    ## [[2]]
+    ## [[2]]$ability
+    ## [[2]]$ability$name
+    ## [1] "chlorophyll"
+    ## 
+    ## [[2]]$ability$url
+    ## [1] "https://pokeapi.co/api/v2/ability/34/"
+    ## 
+    ## 
+    ## [[2]]$is_hidden
+    ## [1] TRUE
+    ## 
+    ## [[2]]$slot
+    ## [1] 3
+
+## Closing Thoughts
+
+Be reasonable.
