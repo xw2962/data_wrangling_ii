@@ -1,0 +1,274 @@
+---
+title: "strings_and_factors"
+author: "Xiaoyu Wu"
+date: "2023-10-11"
+output: github_document
+---
+
+```{r setup}
+library(tidyverse)
+library(rvest)
+library(p8105.datasets)
+```
+
+## Strings and Regex
+use str_detect to find cases where the match exists 
+```{r}
+string_vec = c("my", "name", "is", "jeff")
+
+str_detect(string_vec, "jeff")
+```
+
+use str_replace to replace an instance of a match with something else
+```{r}
+str_replace(string_vec, "jeff", "Jeff")
+```
+
+designate matches at the beginning of a line
+```{r}
+string_vec = c(
+  "i think we all rule for participating",
+  "i think i have been caught",
+  "i think this will be quite fun actually",
+  "it will be fun, i think"
+  )
+
+str_detect(string_vec, "^i think")
+```
+
+designate matches at the end of a line
+```{r}
+str_detect(string_vec, "i think$")
+```
+
+designate a list of characters that will count as a match
+```{r}
+string_vec = c(
+  "Y'all remember Pres. HW Bush?",
+  "I saw a green bush",
+  "BBQ and Bushwalking at Molonglo Gorge",
+  "BUSH -- LIVE IN CONCERT!!"
+  )
+
+str_detect(string_vec,"[Bb]ush")
+```
+
+provide a range of letters or numbers that count as a match
+```{r}
+string_vec = c(
+  '7th inning stretch',
+  '1st half soon to begin. Texas won the toss.',
+  'she is 5 feet 4 inches tall',
+  '3AM - cant sleep :('
+  )
+
+str_detect(string_vec, "^[0-9][a-zA-Z]")
+# here capital or lower case letter are both ok followed by a number
+```
+
+The character "." matches anything
+```{r}
+string_vec = c(
+  'Its 7:11 in the evening',
+  'want to go to 7-11?',
+  'my flight is AA711',
+  'NetBios: scanning ip 203.167.114.66'
+  )
+
+str_detect(string_vec, "7.11")
+# actual literal dot we use "\\."; we put "\\" to specify the true dot here 
+```
+
+Some characters are “special”. These include [ and ], ( and ), and .
+```{r}
+string_vec = c(
+  'The CI is [2, 5]',
+  ':-]',
+  ':-[',
+  'I found the answer on pages [6-7]'
+  )
+
+str_detect(string_vec, "\\[")
+# indicate they’re special using \
+```
+## Factors
+
+```{r}
+vec_sex = factor(c("male", "male", "female", "female"))
+vec_sex
+```
+
+```{r}
+as.numeric(vec_sex)
+```
+
+```{r}
+vec_sex = fct_relevel(vec_sex, "male")
+# make male the first category or level that corresponds to 1
+vec_sex
+```
+
+```{r}
+as.numeric(vec_sex)
+```
+
+## NSDUH
+load the data
+```{r}
+nsduh_url = "http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm"
+
+table_marj = 
+  read_html(nsduh_url) %>% 
+  html_table() %>% 
+  first() %>%
+  slice(-1)
+```
+tidy the data
+```{r}
+data_marj = 
+  table_marj %>%
+  select(-contains("P Value")) %>%
+  pivot_longer(
+    -State,
+# everything that isn't in the state column 
+    names_to = "age_year", 
+    values_to = "percent") %>%
+  separate(age_year, into = c("age", "year"), sep = "\\(") %>%
+#  we split age and year at the open parentheses using "\\("
+  mutate(
+    year = str_replace(year, "\\)", ""),
+# we stripped out the close parenthesis in mutate
+    percent = str_replace(percent, "[a-c]$", ""),
+# to remove character superscripts, we replaced any character using "[a-c]$"
+    percent = as.numeric(percent)) %>%
+  filter(!(State %in% c("Total U.S.", "Northeast", "Midwest", "South", "West")))
+# don't want my state variable to be one of "Total U.S.", "Northeast", "Midwest", "South", "West". 
+```
+make a plot
+```{r}
+data_marj %>%
+  filter(age == "12-17") %>% 
+  mutate(State = fct_reorder(State, percent)) %>% 
+  ggplot(aes(x = State, y = percent, color = year)) + 
+    geom_point() + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+```{r}
+data("rest_inspec")
+
+rest_inspec %>% 
+  group_by(boro, grade) %>% 
+  summarize(n = n()) %>% 
+  pivot_wider(names_from = grade, values_from = n)
+```
+
+```{r}
+rest_inspec =
+  rest_inspec %>%
+  filter(grade %in% c("A", "B", "C"), boro != "Missing") %>% 
+# remove inspections with scores other than A, B, or C, and also remove the restaurants with missing boro information
+  mutate(boro = str_to_title(boro))
+# clean up boro names
+```
+Let’s focus only on pizza places for now, and re-examine grades by borough
+
+Not right due to case sensitive 
+```{r}
+rest_inspec %>% 
+  filter(str_detect(dba, "Pizza")) %>% 
+  group_by(boro, grade) %>% 
+  summarize(n = n()) %>% 
+  pivot_wider(names_from = grade, values_from = n)
+```
+Right Version 
+```{r}
+rest_inspec %>% 
+  filter(str_detect(dba, "[Pp][Ii][Zz][Zz][Aa]")) %>% 
+  group_by(boro, grade) %>% 
+  summarize(n = n()) %>% 
+  pivot_wider(names_from = grade, values_from = n)
+```
+
+Visualization 
+```{r}
+rest_inspec %>% 
+  filter(str_detect(dba, "[Pp][Ii][Zz][Zz][Aa]")) %>%
+  ggplot(aes(x = boro, fill = grade)) + 
+  geom_bar() 
+```
+have things in a different order – maybe number of pizza places
+```{r}
+rest_inspec %>% 
+  filter(str_detect(dba, "[Pp][Ii][Zz][Zz][Aa]")) %>%
+  mutate(boro = fct_infreq(boro)) %>%
+# reorder factor levels by number of observations with each level (largest first)
+  ggplot(aes(x = boro, fill = grade)) + 
+  geom_bar() 
+```
+A dedicated function for renaming factor levels
+```{r}
+rest_inspec %>% 
+  filter(str_detect(dba, regex("pizza", ignore_case = TRUE))) %>%
+  mutate(
+    boro = fct_infreq(boro),
+    boro = fct_recode(boro, "The City" = "Manhattan")) %>%
+  ggplot(aes(x= boro, fill = grade)) +
+  geom_bar()
+# using fct_recode 
+```
+
+## Weather Data 
+
+Load the data 
+```{r}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728", "USC00519397", "USS0023B17S"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2017-01-01",
+    date_max = "2017-12-31") %>%
+  mutate(
+    name = recode(
+      id, 
+      USW00094728 = "CentralPark_NY", 
+      USC00519397 = "Waikiki_HA",
+      USS0023B17S = "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) %>%
+  select(name, id, everything())
+```
+
+```{r}
+weather_df
+```
+
+```{r}
+weather_df %>%
+  mutate(name = forcats::fct_relevel(name, c("Waikiki_HA", "CentralPark_NY", "Waterhole_WA"))) %>% 
+  ggplot(aes(x = name, y = tmax)) + 
+  geom_violin(aes(fill = name), color = "blue", alpha = .5) + 
+  theme(legend.position = "bottom")
+```
+
+```{r}
+weather_df %>%
+  mutate(name = forcats::fct_reorder(name, tmax)) %>% 
+  ggplot(aes(x = name, y = tmax)) + 
+  geom_violin(aes(fill = name), color = "blue", alpha = .5) + 
+  theme(legend.position = "bottom")
+```
+
+## Linear regression 
+```{r}
+weather_df %>%
+  lm(tmax ~ name, data = .)
+# fit tmax as our outcome and name as our predictor 
+```
+
+```{r}
+weather_df %>%
+  mutate(name = forcats::fct_relevel(name, c("Waikiki_HA", "CentralPark_NY", "Waterhole_WA"))) %>% 
+  lm(tmax ~ name, data = .)
+```
+
