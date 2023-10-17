@@ -10,13 +10,13 @@ library(tidyverse)
 library(rvest)
 library(httr)
 ```
-## Scrape a table 
+## Import NSDUH Data 
 I want the first table from this page
 
 read in the html 
 ```{r}
 url = "http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm"
-drug_use_html = read_html(url)
+drug_use_html= read_html(url)
 # function from rvest
 drug_use_html
 ```
