@@ -9,9 +9,25 @@ output: github_document
 library(tidyverse)
 library(rvest)
 library(p8105.datasets)
+knitr::opts_chunk$set(
+  fig.width=6,
+  fig.asp= .6,
+  out.width="90%"
+)
+
+theme_set(theme_minimal()+theme(legend.position="bottom"))
+
+options(
+  ggplot2.cotinuous.color="viridis",
+  ggplot2.cotinuous.fill="viridis"
+)
+# overwrite ggplot default coloring and take care of call the colors and fills 
+
+scale_color_discrete=scale_color_viridis_d
+scale_fill_discrete=scale_fill_viridis_d
 ```
 
-## Strings and Regex
+## Strings and manipulation
 use str_detect to find cases where the match exists 
 ```{r}
 string_vec = c("my", "name", "is", "jeff")
@@ -34,11 +50,13 @@ string_vec = c(
   )
 
 str_detect(string_vec, "^i think")
+# beginning of the line 
 ```
 
 designate matches at the end of a line
 ```{r}
 str_detect(string_vec, "i think$")
+# end of the line 
 ```
 
 designate a list of characters that will count as a match
@@ -128,13 +146,14 @@ tidy the data
 data_marj = 
   table_marj %>%
   select(-contains("P Value")) %>%
+# get rid of every column that contains the string "p value" 
   pivot_longer(
     -State,
 # everything that isn't in the state column 
     names_to = "age_year", 
     values_to = "percent") %>%
   separate(age_year, into = c("age", "year"), sep = "\\(") %>%
-#  we split age and year at the open parentheses using "\\("
+#  we split age and year at the open parentheses using "\\(" and delete the seperate element"(". 
   mutate(
     year = str_replace(year, "\\)", ""),
 # we stripped out the close parenthesis in mutate
@@ -153,6 +172,8 @@ data_marj %>%
     geom_point() + 
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
+
+## NYC Restaurant Inspections
 
 ```{r}
 data("rest_inspec")
