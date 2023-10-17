@@ -181,7 +181,8 @@ data("rest_inspec")
 rest_inspec %>% 
   group_by(boro, grade) %>% 
   summarize(n = n()) %>% 
-  pivot_wider(names_from = grade, values_from = n)
+  pivot_wider(names_from = grade, values_from = n) |> 
+  knitr::kable()
 ```
 
 ```{r}
@@ -190,7 +191,7 @@ rest_inspec =
   filter(grade %in% c("A", "B", "C"), boro != "Missing") %>% 
 # remove inspections with scores other than A, B, or C, and also remove the restaurants with missing boro information
   mutate(boro = str_to_title(boro))
-# clean up boro names
+# clean up boro names: only capitalize the first letter of every boro name  
 ```
 Let’s focus only on pizza places for now, and re-examine grades by borough
 
@@ -206,6 +207,7 @@ Right Version
 ```{r}
 rest_inspec %>% 
   filter(str_detect(dba, "[Pp][Ii][Zz][Zz][Aa]")) %>% 
+# or use str_to_upper here to force every letter to be in the upper case, and use filter "PIZZA"
   group_by(boro, grade) %>% 
   summarize(n = n()) %>% 
   pivot_wider(names_from = grade, values_from = n)
